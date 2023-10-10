@@ -1,0 +1,3 @@
+<app-sign-up-form *ngIf="StepperProgress === STEPPER_PROGRESS.FIRST"></app-sign-up-form>
+<app-verify-mail *ngIf="StepperProgress === STEPPER_PROGRESS.SECOND"></app-verify-mail>
+<app-mail-verification-message *ngIf="StepperProgress === STEPPER_PROGRESS.THIRD"></app-mail-verification-message>

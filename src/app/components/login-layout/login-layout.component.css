@@ -1,0 +1,6 @@
+.hw-image {
+  background-image: linear-gradient(to top right, rgba(48, 35, 77, 1) 10%, rgba(114, 68, 200, 0.55)), url("../../../assets/images/banner.png");
+  background-position: center;
+  background-size: cover;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
