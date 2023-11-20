@@ -12,10 +12,12 @@ import { VerifyMailComponent } from "./components/login-layout/content/verify-ma
 import { SignUpFormComponent } from "./components/login-layout/content/sign-up-form/sign-up-form.component";
 import { MailVerificationMessageComponent } from "./components/login-layout/content/mail-verification-message/mail-verification-message.component";
 import { ContentComponent } from "./components/login-layout/content/content.component";
+import { FloorPlanComponent } from "./components/floor-plan/floor-plan.component";
 
 @NgModule({
   declarations: [
     AppComponent,
+    FloorPlanComponent,
     HeaderComponent,
     SignUpFormComponent,
     MailVerificationMessageComponent,

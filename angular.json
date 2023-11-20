@@ -30,6 +30,7 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/maplibre-gl/dist/maplibre-gl.css",
               "@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.scss"
             ],
@@ -102,5 +103,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }
