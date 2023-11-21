@@ -28,6 +28,18 @@
           }"
         ></mgl-feature>
       </mgl-geojson-source>
+
+      <mgl-geojson-source id="booth-Polygon">
+        <ng-container *ngFor="let feature of features">
+          <mgl-feature
+            [properties]="feature.properties"
+            [geometry]="{
+              type: 'Polygon',
+              coordinates: [feature.geometry.coordinates]
+            }"
+          ></mgl-feature>
+        </ng-container>
+      </mgl-geojson-source>
       <mgl-layer
         id="base-layer"
         type="fill"
@@ -35,6 +47,15 @@
         [paint]="{
           'fill-color': 'gray',
           'fill-opacity': 0.2
+        }"
+      ></mgl-layer>
+      <mgl-layer
+        id="booth-layer"
+        type="fill"
+        source="booth-Polygon"
+        [paint]="{
+          'fill-color': 'red',
+          'fill-opacity': 0.8
         }"
       ></mgl-layer>
     </ng-container>
