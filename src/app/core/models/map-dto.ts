@@ -31,3 +31,15 @@ export class MapLibrePolygon {
     color: string;
   };
 }
+export class MapLibrePoint {
+  type!: string;
+  geometry!: {
+    type: string;
+    coordinates: number[];
+  };
+  properties!: {
+    label: string;
+    rotate: number;
+    color: string;
+  };
+}

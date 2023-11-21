@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewChildren } from "@angular/core";
-import { MapBoundaryBox, MapLibrePolygon, SvgBoundaryBox, SvgCenter } from "src/app/core/models/map-dto";
+import { MapBoundaryBox, MapLibrePoint, MapLibrePolygon, SvgBoundaryBox, SvgCenter } from "src/app/core/models/map-dto";
 
 import {
   Map,
@@ -63,6 +63,7 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
   };
   @ViewChild("dataContainer") dataContainer!: ElementRef<HTMLDivElement>;
   boothsOutlines: MapLibrePolygon[];
+  boothTextNumbers: MapLibrePoint[];
   points: GeoJSON.FeatureCollection<GeoJSON.Point>;
 
   ngOnInit(): void {}
@@ -108,7 +109,9 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
     };
     this.style.center = [this.svgCenter.x, this.svgCenter.y];
 
-    this.boothsOutlines = this.rectsToMapLibrePolygons(svgWrapper, this.mapScale);
+    this.boothsOutlines = this.createBoothOutlines(svgWrapper, this.mapScale);
+    this.boothTextNumbers = this.createBoothNumbers(svgWrapper, this.mapScale);
+    console.log(this.boothTextNumbers);
   }
   //-------------------------------------------------
   selectedElement: GeoJsonProperties | null;
@@ -128,8 +131,8 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
     const resultNumber = resultStr.map((x) => parseFloat(x));
     return resultNumber;
   }
-  //-------------------------------------------------------------------------------- SVGGElement | SVGRectElement
-  rectsToMapLibrePolygons(svgWrapper: HTMLDivElement, scale: number = 1): MapLibrePolygon[] {
+  //--------------------------------------------------------------------------------
+  createBoothOutlines(svgWrapper: HTMLDivElement, scale: number = 1): MapLibrePolygon[] {
     const gElementsWithRect = svgWrapper.querySelectorAll("g rect");
     const groupElements = Array.from(gElementsWithRect, (element) => element.closest("g") as SVGGElement);
     return groupElements.map((group) => {
@@ -163,6 +166,40 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
       return asd;
     });
   }
+
+  createBoothNumbers(svgWrapper: HTMLDivElement, scale: number = 1): MapLibrePoint[] {
+    const gElementsWithText = svgWrapper.querySelectorAll("g text");
+    const groupElements = Array.from(gElementsWithText, (element) => element.closest("g") as SVGGElement);
+
+    return groupElements.map((txtElement) => {
+      const boothNumber = txtElement.querySelector("text tspan")?.textContent?.trim();
+      const x = txtElement.transform?.baseVal[0]?.matrix?.e / scale || 0;
+      const y = txtElement.transform?.baseVal[0]?.matrix?.f / scale || 0;
+
+      const [translateX, translateY] = this.extractTranslateValues(txtElement.getAttribute("transform")) || [0, 0];
+      const adjustedX = x + translateX / scale;
+      const adjustedY = y + translateY / scale;
+
+      // Extract rotation value if needed
+      const rotate = this.extractRotateValue(txtElement.querySelector("text").getAttribute("transform")) || 0;
+
+      const mapLibreText: MapLibrePoint = {
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [x + adjustedX, y + adjustedY],
+        },
+        properties: {
+          rotate: rotate,
+          color: "black", // You can customize the color
+          label: boothNumber,
+        },
+      };
+
+      return mapLibreText;
+    });
+  }
+  //--------------------------------------------------------------------------------
   calculateRotatedRectangleCoordinates(
     x: number,
     y: number,
