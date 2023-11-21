@@ -1,4 +1,45 @@
 <div class="w-screen h-screen">
+  <mgl-map [style]="style" [zoom]="[7]" [center]="[svgCenter.x, svgCenter.y]">
+    <!-- Polygon -->
+    <mgl-geojson-source id="base-Polygon">
+      <mgl-feature
+        [properties]=""
+        [geometry]="{
+          type: 'Polygon',
+          coordinates: [
+            [
+              [mapBoundaryBox.topLeft.x, mapBoundaryBox.topLeft.y],
+              [
+                mapBoundaryBox.topLeft.x + mapBoundaryBox.bottomRight.x,
+                mapBoundaryBox.topLeft.y
+              ],
+              [
+                mapBoundaryBox.topLeft.x + mapBoundaryBox.bottomRight.x,
+                mapBoundaryBox.topLeft.y + mapBoundaryBox.bottomRight.y
+              ],
+              [
+                mapBoundaryBox.topLeft.x,
+                mapBoundaryBox.topLeft.y + mapBoundaryBox.bottomRight.y
+              ],
+              [mapBoundaryBox.topLeft.x, mapBoundaryBox.topLeft.y]
+            ]
+          ]
+        }"
+      ></mgl-feature>
+    </mgl-geojson-source>
+    <mgl-layer
+      id="base-layer"
+      type="fill"
+      source="base-Polygon"
+      [paint]="{
+        'fill-color': 'gray',
+        'fill-opacity': 0.2
+      }"
+    ></mgl-layer>
+  </mgl-map>
+</div>
+<!----------------------------------------------------  for learning purpose ------------------------------------ -->
+<!-- <div class="w-screen h-screen">
   <mgl-map [style]="style" [zoom]="[2]" [center]="[0, 0]">
     <mgl-geojson-source id="point-1">
       <mgl-feature
@@ -22,7 +63,6 @@
       source="point-1"
       [paint]="layerPaint"
     ></mgl-layer>
-    <!-- Polygon -->
     <mgl-geojson-source id="polygon-1">
       <mgl-feature
         [properties]=""
@@ -50,4 +90,4 @@
       }"
     ></mgl-layer>
   </mgl-map>
-</div>
+</div> -->

@@ -5,12 +5,12 @@ export interface Point {
 
 export interface SvgBoundaryBox {
   topLeft: Point;
-  bottomright: Point;
+  bottomRight: Point;
 }
 
 export interface MapBoundaryBox {
   topLeft: Point;
-  bottomright: Point;
+  bottomRight: Point;
 }
 
 export interface SvgCenter {

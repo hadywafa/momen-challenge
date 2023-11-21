@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
-import { MapLibrePolygon } from "src/app/core/models/map-dto";
+import { MapBoundaryBox, MapLibrePolygon, SvgBoundaryBox, SvgCenter } from "src/app/core/models/map-dto";
 
 import {
   Map,
@@ -24,7 +24,8 @@ import {
   styleUrls: ["./floor-plan.component.css"],
 })
 export class FloorPlanComponent implements OnInit {
-  style: StyleSpecification = {
+  // map: Map;
+  readonly style: StyleSpecification = {
     version: 8,
     name: "Raster tiles",
     center: [0, 0],
@@ -49,69 +50,42 @@ export class FloorPlanComponent implements OnInit {
       },
     ],
   };
-  layerPaint = {
+  readonly mapScale: number = 100;
+
+  readonly svgBoundaryBox: SvgBoundaryBox = {
+    topLeft: {
+      x: 0,
+      y: 0,
+    },
+    bottomRight: {
+      x: 220.58,
+      y: -346.12,
+    },
+  };
+
+  readonly mapBoundaryBox: MapBoundaryBox = {
+    topLeft: {
+      x: this.svgBoundaryBox.topLeft.x / this.mapScale,
+      y: this.svgBoundaryBox.topLeft.y / this.mapScale,
+    },
+    bottomRight: {
+      x: this.svgBoundaryBox.bottomRight.x / this.mapScale,
+      y: this.svgBoundaryBox.bottomRight.y / this.mapScale,
+    },
+  };
+
+  readonly svgCenter: SvgCenter = {
+    x: this.mapBoundaryBox.bottomRight.x / 2,
+    y: this.mapBoundaryBox.bottomRight.y / 2,
+  };
+  constructor(private mapService: MapService) {}
+  load = false;
+  readonly layerPaint = {
     "circle-radius": 10,
     "circle-color": "#3887be",
   };
-  constructor(private mapService: MapService) {}
+
   ngOnInit(): void {}
-  map: Map;
-  load = false;
-  // onMapLoad(mapInstance: any) {
-  //   this.map = mapInstance as Map;
-
-  //   this.map.addSource("my-data", {
-  //     type: "geojson",
-  //     data: {
-  //       type: "Feature",
-  //       geometry: {
-  //         type: "Point",
-  //         coordinates: [10, 10],
-  //       },
-  //       properties: {
-  //         title: "Mapbox DC",
-  //         "marker-symbol": "monument",
-  //       },
-  //     },
-  //   });
-  //   this.map.addLayer({
-  //     id: "my-layer",
-  //     type: "circle",
-  //     source: "my-data",
-  //     paint: {
-  //       "circle-radius": 10,
-  //       "circle-color": "#3887be",
-  //     },
-  //   });
-  //   //----------------------------------
-  //   const marker1 = new MarkerComponent(this.mapService);
-  //   marker1.lngLat = [0, 0];
-  //   marker1.feature.properties = {
-  //     color: "red",
-  //   };
-
-  //   // const ly: AddLayerObject = {
-  //   //   id: "",
-  //   //   type: "circle",
-
-  //   //   source:
-  //   // };
-
-  //   this.map.addLayer({
-  //     id: "states",
-  //     // References the GeoJSON source defined above
-  //     // and does not require a `source-layer`
-  //     source: "state-data",
-  //     type: "symbol",
-  //   });
-
-  //   const marker2 = new MarkerComponent(this.mapService);
-  //   marker2.lngLat = [10, 0];
-  //   marker1.feature.properties = {
-  //     color: "blue",
-  //   };
-  //   this.load = true;
-  // }
   //--------------------------------------------------------------------------------
   rectsToMapLibrePolygons(rectElements: SVGRectElement[], scale: number = 1): MapLibrePolygon[] {
     return rectElements.map((rectElement) => {
