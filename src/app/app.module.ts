@@ -15,9 +15,11 @@ import { ContentComponent } from "./components/login-layout/content/content.comp
 import { FloorPlanComponent } from "./components/floor-plan/floor-plan.component";
 import { MapService, NgxMapLibreGLModule } from "@maplibre/ngx-maplibre-gl";
 import { MaterialModule } from "./modules/ng-material";
+import { CustomLoaderComponent } from "./components/custom-loader/custom-loader.component";
 
 @NgModule({
   declarations: [
+    CustomLoaderComponent,
     AppComponent,
     FloorPlanComponent,
     HeaderComponent,
@@ -29,7 +31,7 @@ import { MaterialModule } from "./modules/ng-material";
     StepperComponent,
     FooterComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule,MaterialModule, NgxMapLibreGLModule],
+  imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule, MaterialModule, NgxMapLibreGLModule],
   providers: [MapService],
   bootstrap: [AppComponent],
 })

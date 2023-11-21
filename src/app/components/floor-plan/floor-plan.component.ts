@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { MapBoundaryBox, MapLibrePolygon, SvgBoundaryBox, SvgCenter } from "src/app/core/models/map-dto";
 
 import {
@@ -18,13 +18,14 @@ import {
   GeoJSONSourceComponent,
   MapService,
 } from "@maplibre/ngx-maplibre-gl";
+import { Subscription, delay, interval } from "rxjs";
 @Component({
   selector: "app-floor-plan",
   templateUrl: "./floor-plan.component.html",
   styleUrls: ["./floor-plan.component.css"],
 })
-export class FloorPlanComponent implements OnInit {
-  // map: Map;
+export class FloorPlanComponent implements OnInit, OnDestroy {
+  private intervalSubscription: Subscription;
   readonly style: StyleSpecification = {
     version: 8,
     name: "Raster tiles",
@@ -85,7 +86,18 @@ export class FloorPlanComponent implements OnInit {
     "circle-color": "#3887be",
   };
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.startInterval();
+  }
+  startInterval() {
+    const yourTimeInterval = 1000; // Specify the time interval in milliseconds (e.g., 1000ms = 1 second)
+
+    this.intervalSubscription = interval(yourTimeInterval)
+      .pipe()
+      .subscribe(() => {
+        this.load = true;
+      });
+  }
   //--------------------------------------------------------------------------------
   rectsToMapLibrePolygons(rectElements: SVGRectElement[], scale: number = 1): MapLibrePolygon[] {
     return rectElements.map((rectElement) => {
@@ -157,5 +169,7 @@ export class FloorPlanComponent implements OnInit {
     return match ? parseFloat(match[1]) : 0;
   }
 
-  ngOnDestroy() {}
+  ngOnDestroy() {
+    this.intervalSubscription.unsubscribe();
+  }
 }
