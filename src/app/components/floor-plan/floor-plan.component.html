@@ -1,32 +1,53 @@
 <div class="w-screen h-screen">
   <mgl-map [style]="style" [zoom]="[2]" [center]="[0, 0]">
-    <mgl-geojson-source id="point">
+    <mgl-geojson-source id="point-1">
       <mgl-feature
         [properties]=""
         [geometry]="{
           type: 'Point',
           coordinates: [0, 0]
         }"
-        [mglDraggable]="targetLayer"
-        (featureDragStart)="onDragStart($event)"
-        (featureDragEnd)="onDragEnd($event)"
-        (featureDrag)="onDrag($event)"
+      ></mgl-feature>
+      <mgl-feature
+        [properties]=""
+        [geometry]="{
+          type: 'Point',
+          coordinates: [10, 0]
+        }"
       ></mgl-feature>
     </mgl-geojson-source>
     <mgl-layer
-      #targetLayer
-      id="point"
+      id="layer-1"
       type="circle"
-      source="point"
+      source="point-1"
       [paint]="layerPaint"
-      (layerMouseEnter)="changeColor('#3bb2d0')"
-      (layerMouseLeave)="changeColor('#3887be')"
     ></mgl-layer>
-    <mgl-control position="bottom-left">
-      <mat-card appearance="outlined">
-        <div>Longitude:&nbsp;{{ coordinates[0] }}</div>
-        <div>Latitude:&nbsp;{{ coordinates[1] }}</div>
-      </mat-card>
-    </mgl-control>
+    <!-- Polygon -->
+    <mgl-geojson-source id="polygon-1">
+      <mgl-feature
+        [properties]=""
+        [geometry]="{
+          type: 'Polygon',
+          coordinates: [
+            [
+              [0, 0],
+              [5, 0],
+              [5, -5],
+              [0, -5],
+              [0, 0]
+            ]
+          ]
+        }"
+      ></mgl-feature>
+    </mgl-geojson-source>
+    <mgl-layer
+      id="layer-2"
+      type="fill"
+      source="polygon-1"
+      [paint]="{
+        'fill-color': '#088',
+        'fill-opacity': 0.8
+      }"
+    ></mgl-layer>
   </mgl-map>
 </div>

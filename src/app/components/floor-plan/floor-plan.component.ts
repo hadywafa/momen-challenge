@@ -1,19 +1,29 @@
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
-
-import { Map, MapLayerMouseEvent, LngLat, Source, MapMouseEvent, StyleSpecification } from "maplibre-gl";
-import { GeoJsonProperties } from "geojson";
 import { MapLibrePolygon } from "src/app/core/models/map-dto";
 
+import {
+  Map,
+  MapLayerMouseEvent,
+  AddLayerObject,
+  LngLat,
+  Source,
+  MapMouseEvent,
+  StyleSpecification,
+} from "maplibre-gl";
+import {
+  MapComponent,
+  MarkerComponent,
+  SetupMarker,
+  LayerComponent,
+  GeoJSONSourceComponent,
+  MapService,
+} from "@maplibre/ngx-maplibre-gl";
 @Component({
   selector: "app-floor-plan",
   templateUrl: "./floor-plan.component.html",
   styleUrls: ["./floor-plan.component.css"],
 })
-export class FloorPlanComponent {
-  layerPaint = {
-    "circle-radius": 10,
-    "circle-color": "#3887be",
-  };
+export class FloorPlanComponent implements OnInit {
   style: StyleSpecification = {
     version: 8,
     name: "Raster tiles",
@@ -39,27 +49,69 @@ export class FloorPlanComponent {
       },
     ],
   };
-  coordinates = [0, 0];
+  layerPaint = {
+    "circle-radius": 10,
+    "circle-color": "#3887be",
+  };
+  constructor(private mapService: MapService) {}
+  ngOnInit(): void {}
+  map: Map;
+  load = false;
+  // onMapLoad(mapInstance: any) {
+  //   this.map = mapInstance as Map;
 
-  onDragStart(event: MapMouseEvent) {
-    console.log("onDragStart", event);
-  }
+  //   this.map.addSource("my-data", {
+  //     type: "geojson",
+  //     data: {
+  //       type: "Feature",
+  //       geometry: {
+  //         type: "Point",
+  //         coordinates: [10, 10],
+  //       },
+  //       properties: {
+  //         title: "Mapbox DC",
+  //         "marker-symbol": "monument",
+  //       },
+  //     },
+  //   });
+  //   this.map.addLayer({
+  //     id: "my-layer",
+  //     type: "circle",
+  //     source: "my-data",
+  //     paint: {
+  //       "circle-radius": 10,
+  //       "circle-color": "#3887be",
+  //     },
+  //   });
+  //   //----------------------------------
+  //   const marker1 = new MarkerComponent(this.mapService);
+  //   marker1.lngLat = [0, 0];
+  //   marker1.feature.properties = {
+  //     color: "red",
+  //   };
 
-  onDragEnd(event: MapMouseEvent) {
-    console.log("onDragEnd", event);
-  }
+  //   // const ly: AddLayerObject = {
+  //   //   id: "",
+  //   //   type: "circle",
 
-  onDrag(event: MapMouseEvent) {
-    console.log("onDrag", event);
-    this.coordinates = event.lngLat.toArray();
-  }
+  //   //   source:
+  //   // };
 
-  changeColor(color: string) {
-    this.layerPaint = { ...this.layerPaint, "circle-color": color };
-  }
+  //   this.map.addLayer({
+  //     id: "states",
+  //     // References the GeoJSON source defined above
+  //     // and does not require a `source-layer`
+  //     source: "state-data",
+  //     type: "symbol",
+  //   });
 
-  constructor() {}
-
+  //   const marker2 = new MarkerComponent(this.mapService);
+  //   marker2.lngLat = [10, 0];
+  //   marker1.feature.properties = {
+  //     color: "blue",
+  //   };
+  //   this.load = true;
+  // }
   //--------------------------------------------------------------------------------
   rectsToMapLibrePolygons(rectElements: SVGRectElement[], scale: number = 1): MapLibrePolygon[] {
     return rectElements.map((rectElement) => {

@@ -13,7 +13,7 @@ import { SignUpFormComponent } from "./components/login-layout/content/sign-up-f
 import { MailVerificationMessageComponent } from "./components/login-layout/content/mail-verification-message/mail-verification-message.component";
 import { ContentComponent } from "./components/login-layout/content/content.component";
 import { FloorPlanComponent } from "./components/floor-plan/floor-plan.component";
-import { NgxMapLibreGLModule } from "@maplibre/ngx-maplibre-gl";
+import { MapService, NgxMapLibreGLModule } from "@maplibre/ngx-maplibre-gl";
 import { MaterialModule } from "./modules/ng-material";
 
 @NgModule({
@@ -30,7 +30,7 @@ import { MaterialModule } from "./modules/ng-material";
     FooterComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule,MaterialModule, NgxMapLibreGLModule],
-  providers: [],
+  providers: [MapService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
