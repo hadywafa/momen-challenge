@@ -18,6 +18,7 @@ import {
   GeoJSONSourceComponent,
   MapService,
 } from "@maplibre/ngx-maplibre-gl";
+import { GeoJsonProperties } from "geojson";
 import { Subscription, delay, interval } from "rxjs";
 import { FLOOR_PLAN_DATA_SVG } from "src/app/core/Data/svgData";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
@@ -89,6 +90,8 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
   };
   @ViewChild("dataContainer") dataContainer!: ElementRef<HTMLDivElement>;
   features: MapLibrePolygon[];
+  points: GeoJSON.FeatureCollection<GeoJSON.Point>;
+
   ngOnInit(): void {}
   ngAfterViewInit() {
     this.dataContainer.nativeElement.innerHTML = FLOOR_PLAN_DATA_SVG;
@@ -110,23 +113,37 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
 
     // console.log(rectArray);
     this.features = this.rectsToMapLibrePolygons(rectArray, this.mapScale);
-    console.log(this.features);
+  }
+  //-------------------------------------------------
+  selectedElement: GeoJsonProperties | null;
+  selectedLngLat: LngLat;
+  cursorStyle: string;
+
+  onClick(evt: MapLayerMouseEvent) {
+    this.selectedLngLat = evt.lngLat;
+    this.selectedElement = evt.features![0].properties;
+  }
+
+  onMapClick() {
+    this.selectedElement = null;
   }
   //--------------------------------------------------------------------------------
   rectsToMapLibrePolygons(rectElements: SVGRectElement[], scale: number = 1): MapLibrePolygon[] {
     return rectElements.map((rectElement) => {
-      const x = parseFloat(rectElement.getAttribute("x")!) / scale;
-      const y = parseFloat(rectElement.getAttribute("y")!) / scale;
-      const width = parseFloat(rectElement.getAttribute("width")!) / scale;
-      const height = parseFloat(rectElement.getAttribute("height")!) / scale;
+      const ctm = rectElement.getCTM();
+      const x = rectElement.x.baseVal.value / scale;
+      const y = rectElement.y.baseVal.value / scale;
+      const width = rectElement.width.baseVal.value / scale;
+      const height = rectElement.height.baseVal.value / scale;
 
-      const transformAttribute = rectElement.getAttribute("transform");
-      const [translateX, translateY] = this.extractTranslateValues(transformAttribute) || [0, 0];
-      const rotate = this.extractRotateValue(transformAttribute) || 0;
+      // Extract translation values
+      const translateX = ctm.e / scale;
+      const translateY = ctm.f / scale;
 
+      // Extract rotation value
+      const rotate = this.extractRotateValue(rectElement.getAttribute("transform")) || 0;
       const adjustedX = x + translateX / scale;
       const adjustedY = y + translateY / scale;
-
       const coordinates = this.calculateRotatedRectangleCoordinates(adjustedX, adjustedY, width, height, rotate);
       const asd: MapLibrePolygon = {
         type: "Feature",
@@ -137,7 +154,7 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
         properties: {
           rotate: rotate,
           color: "red",
-          label: "shit",
+          label: "you can add any property here to display it ",
         },
       };
       return asd;
@@ -170,21 +187,14 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
       [x1, y1],
     ];
   }
-
-  extractTranslateValues(transform?: string): [number, number] {
+  extractRotateValue(transform: string): number | undefined {
     if (!transform) return undefined;
-    const regex = /translate\(([-.\d]+) ([-.\d]+)\)/;
-    const match = transform.match(regex);
-    return match ? [parseFloat(match[1]), parseFloat(match[2])] : [0, 0];
-  }
 
-  extractRotateValue(transform?: string): number {
-    if (!transform) return undefined;
-    const regex = /rotate\(([-.\d]+)\)/;
-    const match = transform.match(regex);
+    const rotateRegex = /rotate\(([-.\d]+)\)/;
+    const match = transform.match(rotateRegex);
+
     return match ? parseFloat(match[1]) : 0;
   }
-
   ngOnDestroy() {
     this.intervalSubscription.unsubscribe();
   }

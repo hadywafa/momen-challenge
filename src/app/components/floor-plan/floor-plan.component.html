@@ -1,6 +1,12 @@
 <div #dataContainer hidden></div>
 <div *ngIf="load; else loadingTemplate" class="w-screen h-screen">
-  <mgl-map [style]="style" [zoom]="[7]" [center]="[svgCenter.x, svgCenter.y]">
+  <mgl-map
+    [style]="style"
+    [zoom]="[7]"
+    [center]="[svgCenter.x, svgCenter.y]"
+    [cursorStyle]="cursorStyle"
+    (mapClick)="onMapClick()"
+  >
     <ng-container *ngIf="load">
       <mgl-geojson-source id="base-Polygon">
         <mgl-feature
@@ -57,8 +63,18 @@
           'fill-color': 'red',
           'fill-opacity': 0.8
         }"
+        (layerMouseEnter)="cursorStyle = 'pointer'"
+        (layerMouseLeave)="cursorStyle = ''"
+        (layerClick)="onClick($event)"
       ></mgl-layer>
     </ng-container>
+    <mgl-popup
+      *ngIf="selectedElement && selectedLngLat"
+      [lngLat]="selectedLngLat"
+      [closeOnClick]="false"
+    >
+      <span [innerHTML]="selectedElement?.['label']"></span>
+    </mgl-popup>
   </mgl-map>
 </div>
 <ng-template #loadingTemplate>
