@@ -1,24 +1,7 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewChildren } from "@angular/core";
 import { MapBoundaryBox, MapLibrePoint, MapLibrePolygon, SvgBoundaryBox, SvgCenter } from "src/app/core/models/map-dto";
-
-import {
-  Map,
-  MapLayerMouseEvent,
-  AddLayerObject,
-  LngLat,
-  Source,
-  MapMouseEvent,
-  LayerSpecification,
-  StyleSpecification,
-} from "maplibre-gl";
-import {
-  MapComponent,
-  MarkerComponent,
-  SetupMarker,
-  LayerComponent,
-  GeoJSONSourceComponent,
-  MapService,
-} from "@maplibre/ngx-maplibre-gl";
+import { MapLayerMouseEvent, LngLat, LayerSpecification, StyleSpecification } from "maplibre-gl";
+import {} from "@maplibre/ngx-maplibre-gl";
 import { GeoJsonProperties } from "geojson";
 import { Subscription, delay, interval } from "rxjs";
 import { FLOOR_PLAN_DATA_SVG } from "src/app/core/Data/svgData";
