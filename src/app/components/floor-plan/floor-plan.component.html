@@ -36,12 +36,12 @@
       </mgl-geojson-source>
 
       <mgl-geojson-source id="booth-Polygon">
-        <ng-container *ngFor="let feature of features">
+        <ng-container *ngFor="let booth of boothsOutlines">
           <mgl-feature
-            [properties]="feature.properties"
+            [properties]="booth.properties"
             [geometry]="{
               type: 'Polygon',
-              coordinates: [feature.geometry.coordinates]
+              coordinates: [booth.geometry.coordinates]
             }"
           ></mgl-feature>
         </ng-container>

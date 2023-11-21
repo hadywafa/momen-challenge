@@ -53,7 +53,6 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
     ],
   };
   readonly mapScale: number = 100;
-  svgBoundaryBox!: SvgBoundaryBox;
   mapBoundaryBox!: MapBoundaryBox;
   svgCenter!: SvgCenter;
   constructor(private sanitizer: DomSanitizer) {}
@@ -63,7 +62,7 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
     "circle-color": "#3887be",
   };
   @ViewChild("dataContainer") dataContainer!: ElementRef<HTMLDivElement>;
-  features: MapLibrePolygon[];
+  boothsOutlines: MapLibrePolygon[];
   points: GeoJSON.FeatureCollection<GeoJSON.Point>;
 
   ngOnInit(): void {}
@@ -81,27 +80,26 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
     }
   }
   mapData() {
-    const allElements = this.dataContainer.nativeElement;
-    const resultStr = allElements.querySelector("svg").getAttribute("viewBox").split(" ") as [];
-    const resultNumber = resultStr.map((x) => parseFloat(x));
-    this.svgBoundaryBox = {
+    const svgWrapper = this.dataContainer.nativeElement;
+    const svgBounds = this.getSvgBounds(svgWrapper);
+    const svgBoundaryBox = {
       topLeft: {
-        x: resultNumber.at(0),
-        y: resultNumber.at(1),
+        x: svgBounds.at(0),
+        y: svgBounds.at(1),
       },
       bottomRight: {
-        x: resultNumber.at(2),
-        y: resultNumber.at(3),
+        x: svgBounds.at(2),
+        y: svgBounds.at(3),
       },
     };
     this.mapBoundaryBox = {
       topLeft: {
-        x: this.svgBoundaryBox.topLeft.x / this.mapScale,
-        y: this.svgBoundaryBox.topLeft.y / this.mapScale,
+        x: svgBoundaryBox.topLeft.x / this.mapScale,
+        y: svgBoundaryBox.topLeft.y / this.mapScale,
       },
       bottomRight: {
-        x: this.svgBoundaryBox.bottomRight.x / this.mapScale,
-        y: this.svgBoundaryBox.bottomRight.y / this.mapScale,
+        x: svgBoundaryBox.bottomRight.x / this.mapScale,
+        y: svgBoundaryBox.bottomRight.y / this.mapScale,
       },
     };
     this.svgCenter = {
@@ -109,11 +107,8 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
       y: this.mapBoundaryBox.bottomRight.y / 2,
     };
     this.style.center = [this.svgCenter.x, this.svgCenter.y];
-    const rectElements = allElements.querySelectorAll("rect");
-    const rectArray = Array.from(rectElements, (element) => element as SVGRectElement);
 
-    // console.log(rectArray);
-    this.features = this.rectsToMapLibrePolygons(rectArray, this.mapScale);
+    this.boothsOutlines = this.rectsToMapLibrePolygons(svgWrapper, this.mapScale);
   }
   //-------------------------------------------------
   selectedElement: GeoJsonProperties | null;
@@ -128,9 +123,18 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
   onMapClick() {
     this.selectedElement = null;
   }
-  //--------------------------------------------------------------------------------
-  rectsToMapLibrePolygons(rectElements: SVGRectElement[], scale: number = 1): MapLibrePolygon[] {
-    return rectElements.map((rectElement) => {
+  getSvgBounds(svgWrapper: HTMLDivElement): number[] {
+    const resultStr = svgWrapper.querySelector("svg").getAttribute("viewBox").split(" ") as [];
+    const resultNumber = resultStr.map((x) => parseFloat(x));
+    return resultNumber;
+  }
+  //-------------------------------------------------------------------------------- SVGGElement | SVGRectElement
+  rectsToMapLibrePolygons(svgWrapper: HTMLDivElement, scale: number = 1): MapLibrePolygon[] {
+    const gElementsWithRect = svgWrapper.querySelectorAll("g rect");
+    const groupElements = Array.from(gElementsWithRect, (element) => element.closest("g") as SVGGElement);
+    return groupElements.map((group) => {
+      const rectElement = group.querySelector("rect");
+      const boothNumber = group.getAttribute("data-name");
       const x = rectElement.x.baseVal.value / scale;
       const y = rectElement.y.baseVal.value / scale;
       const width = rectElement.width.baseVal.value / scale;
@@ -138,10 +142,10 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
 
       // Extract translation values
       const [translateX, translateY] = this.extractTranslateValues(rectElement.getAttribute("transform")) || [0, 0];
+      const adjustedX = x; //+ translateX / scale;
+      const adjustedY = y; //+ translateY / scale;
       // Extract rotation value
       const rotate = this.extractRotateValue(rectElement.getAttribute("transform")) || 0;
-      const adjustedX = x; // + translateX / scale;
-      const adjustedY = y; //+ translateY / scale;
       const coordinates = this.calculateRotatedRectangleCoordinates(adjustedX, adjustedY, width, height, rotate);
       const asd: MapLibrePolygon = {
         type: "Feature",
@@ -151,7 +155,7 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
         },
         properties: {
           rotate: rotate,
-          boothNumber: "1",
+          boothNumber: boothNumber,
           color: "red",
           label: "you can add any property here to display it ",
         },
@@ -159,7 +163,6 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
       return asd;
     });
   }
-
   calculateRotatedRectangleCoordinates(
     x: number,
     y: number,
@@ -186,7 +189,6 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
       [x1, y1],
     ];
   }
-
   extractRotateValue(transform: string): number | undefined {
     if (!transform) return undefined;
 
