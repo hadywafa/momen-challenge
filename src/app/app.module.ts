@@ -13,6 +13,8 @@ import { SignUpFormComponent } from "./components/login-layout/content/sign-up-f
 import { MailVerificationMessageComponent } from "./components/login-layout/content/mail-verification-message/mail-verification-message.component";
 import { ContentComponent } from "./components/login-layout/content/content.component";
 import { FloorPlanComponent } from "./components/floor-plan/floor-plan.component";
+import { NgxMapLibreGLModule } from "@maplibre/ngx-maplibre-gl";
+import { MaterialModule } from "./modules/ng-material";
 
 @NgModule({
   declarations: [
@@ -27,7 +29,7 @@ import { FloorPlanComponent } from "./components/floor-plan/floor-plan.component
     StepperComponent,
     FooterComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule],
+  imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule,MaterialModule, NgxMapLibreGLModule],
   providers: [],
   bootstrap: [AppComponent],
 })

@@ -1,3 +1,38 @@
-<div class="map-wrap">
-  <div class="map" #map></div>
+<div class="w-screen h-screen">
+  <mgl-map
+    [style]="
+      'https://api.maptiler.com/maps/streets/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL'
+    "
+    [zoom]="[2]"
+    [center]="[0, 0]"
+  >
+    <mgl-geojson-source id="point">
+      <mgl-feature
+        [properties]=""
+        [geometry]="{
+          type: 'Point',
+          coordinates: [0, 0]
+        }"
+        [mglDraggable]="targetLayer"
+        (featureDragStart)="onDragStart($event)"
+        (featureDragEnd)="onDragEnd($event)"
+        (featureDrag)="onDrag($event)"
+      ></mgl-feature>
+    </mgl-geojson-source>
+    <mgl-layer
+      #targetLayer
+      id="point"
+      type="circle"
+      source="point"
+      [paint]="layerPaint"
+      (layerMouseEnter)="changeColor('#3bb2d0')"
+      (layerMouseLeave)="changeColor('#3887be')"
+    ></mgl-layer>
+    <mgl-control position="bottom-left">
+      <mat-card appearance="outlined">
+        <div>Longitude:&nbsp;{{ coordinates[0] }}</div>
+        <div>Latitude:&nbsp;{{ coordinates[1] }}</div>
+      </mat-card>
+    </mgl-control>
+  </mgl-map>
 </div>
