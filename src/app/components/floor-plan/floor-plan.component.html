@@ -1,3 +1,4 @@
+<div #dataContainer hidden></div>
 <div *ngIf="load; else loadingTemplate" class="w-screen h-screen">
   <mgl-map [style]="style" [zoom]="[7]" [center]="[svgCenter.x, svgCenter.y]">
     <ng-container *ngIf="load">

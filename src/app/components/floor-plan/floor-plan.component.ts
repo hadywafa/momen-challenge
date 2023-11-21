@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewChildren } from "@angular/core";
 import { MapBoundaryBox, MapLibrePolygon, SvgBoundaryBox, SvgCenter } from "src/app/core/models/map-dto";
 
 import {
@@ -19,6 +19,8 @@ import {
   MapService,
 } from "@maplibre/ngx-maplibre-gl";
 import { Subscription, delay, interval } from "rxjs";
+import { FLOOR_PLAN_DATA_SVG } from "src/app/core/Data/svgData";
+import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 @Component({
   selector: "app-floor-plan",
   templateUrl: "./floor-plan.component.html",
@@ -79,24 +81,36 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
     x: this.mapBoundaryBox.bottomRight.x / 2,
     y: this.mapBoundaryBox.bottomRight.y / 2,
   };
-  constructor(private mapService: MapService) {}
+  constructor(private sanitizer: DomSanitizer) {}
   load = false;
   readonly layerPaint = {
     "circle-radius": 10,
     "circle-color": "#3887be",
   };
-
-  ngOnInit(): void {
-    this.startInterval();
+  @ViewChild("dataContainer") dataContainer!: ElementRef<HTMLDivElement>;
+  features: MapLibrePolygon[];
+  ngOnInit(): void {}
+  ngAfterViewInit() {
+    this.dataContainer.nativeElement.innerHTML = FLOOR_PLAN_DATA_SVG;
+    this.InitializeFloorPlan();
   }
-  startInterval() {
-    const yourTimeInterval = 1000; // Specify the time interval in milliseconds (e.g., 1000ms = 1 second)
+  InitializeFloorPlan() {
+    if (this.dataContainer) {
+      this.mapData();
+      this.load = true;
+    } else {
+      this.load = true;
+      console.error("dataContainer is undefined.");
+    }
+  }
+  mapData() {
+    const allElements = this.dataContainer.nativeElement;
+    const rectElements = allElements.querySelectorAll("rect");
+    const rectArray = Array.from(rectElements, (element) => element as SVGRectElement);
 
-    this.intervalSubscription = interval(yourTimeInterval)
-      .pipe()
-      .subscribe(() => {
-        this.load = true;
-      });
+    // console.log(rectArray);
+    this.features = this.rectsToMapLibrePolygons(rectArray, this.mapScale);
+    console.log(this.features);
   }
   //--------------------------------------------------------------------------------
   rectsToMapLibrePolygons(rectElements: SVGRectElement[], scale: number = 1): MapLibrePolygon[] {
@@ -163,7 +177,7 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
     return match ? [parseFloat(match[1]), parseFloat(match[2])] : [0, 0];
   }
 
-  extractRotateValue(transform: string): number {
+  extractRotateValue(transform?: string): number {
     const regex = /rotate\(([-.\d]+)\)/;
     const match = transform.match(regex);
     return match ? parseFloat(match[1]) : 0;
