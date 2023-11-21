@@ -121,8 +121,8 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
       const height = parseFloat(rectElement.getAttribute("height")!) / scale;
 
       const transformAttribute = rectElement.getAttribute("transform");
-      const [translateX, translateY] = this.extractTranslateValues(transformAttribute!);
-      const rotate = this.extractRotateValue(transformAttribute!);
+      const [translateX, translateY] = this.extractTranslateValues(transformAttribute) || [0, 0];
+      const rotate = this.extractRotateValue(transformAttribute) || 0;
 
       const adjustedX = x + translateX / scale;
       const adjustedY = y + translateY / scale;
@@ -171,13 +171,15 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
     ];
   }
 
-  extractTranslateValues(transform: string): [number, number] {
+  extractTranslateValues(transform?: string): [number, number] {
+    if (!transform) return undefined;
     const regex = /translate\(([-.\d]+) ([-.\d]+)\)/;
     const match = transform.match(regex);
     return match ? [parseFloat(match[1]), parseFloat(match[2])] : [0, 0];
   }
 
   extractRotateValue(transform?: string): number {
+    if (!transform) return undefined;
     const regex = /rotate\(([-.\d]+)\)/;
     const match = transform.match(regex);
     return match ? parseFloat(match[1]) : 0;
