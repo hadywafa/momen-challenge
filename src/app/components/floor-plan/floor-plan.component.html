@@ -84,12 +84,12 @@
       </mgl-layer>
       <mgl-layer
         id="booth-txt-layer"
-        type="fill"
+        type="symbol"
         source="booth-txt"
         [paint]="{
-          'fill-color': '#088',
-          'fill-opacity': 0.8
+          'text-color': 'black',
         }"
+        [layout]="txtLayout"
       ></mgl-layer>
     </ng-container>
     <mgl-popup

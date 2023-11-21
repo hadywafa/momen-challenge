@@ -8,6 +8,7 @@ import {
   LngLat,
   Source,
   MapMouseEvent,
+  LayerSpecification,
   StyleSpecification,
 } from "maplibre-gl";
 import {
@@ -52,6 +53,12 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
       },
     ],
   };
+  txtLayout: LayerSpecification["layout"] = {
+    "text-field": ["get", "label"], // property in your GeoJSON with booth numbers
+    "text-size": 12,
+    "text-anchor": "top",
+    "text-offset": [0, 2],
+  };
   readonly mapScale: number = 100;
   mapBoundaryBox!: MapBoundaryBox;
   svgCenter!: SvgCenter;
@@ -67,6 +74,7 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
   points: GeoJSON.FeatureCollection<GeoJSON.Point>;
 
   ngOnInit(): void {}
+
   ngAfterViewInit() {
     this.dataContainer.nativeElement.innerHTML = FLOOR_PLAN_DATA_SVG;
     this.InitializeFloorPlan();
@@ -122,7 +130,6 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
     this.selectedLngLat = evt.lngLat;
     this.selectedElement = evt.features![0].properties;
   }
-
   onMapClick() {
     this.selectedElement = null;
   }
@@ -172,16 +179,17 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
     const groupElements = Array.from(gElementsWithText, (element) => element.closest("g") as SVGGElement);
 
     return groupElements.map((txtElement) => {
+      const transform = txtElement.querySelector("text").getAttribute("transform");
       const boothNumber = txtElement.querySelector("text tspan")?.textContent?.trim();
       const x = txtElement.transform?.baseVal[0]?.matrix?.e / scale || 0;
       const y = txtElement.transform?.baseVal[0]?.matrix?.f / scale || 0;
 
-      const [translateX, translateY] = this.extractTranslateValues(txtElement.getAttribute("transform")) || [0, 0];
+      const [translateX, translateY] = this.extractTranslateValues(transform) || [0, 0];
+
       const adjustedX = x + translateX / scale;
       const adjustedY = y + translateY / scale;
-
       // Extract rotation value if needed
-      const rotate = this.extractRotateValue(txtElement.querySelector("text").getAttribute("transform")) || 0;
+      const rotate = this.extractRotateValue(transform) || 0;
 
       const mapLibreText: MapLibrePoint = {
         type: "Feature",
