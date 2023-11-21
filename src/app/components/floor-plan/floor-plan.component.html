@@ -60,8 +60,8 @@
         type="fill"
         source="booth-Polygon"
         [paint]="{
-          'fill-color': 'red',
-          'fill-opacity': 0.8
+          'fill-color': 'blue',
+          'fill-opacity': 0.2
         }"
         (layerMouseEnter)="cursorStyle = 'pointer'"
         (layerMouseLeave)="cursorStyle = ''"
@@ -73,7 +73,7 @@
       [lngLat]="selectedLngLat"
       [closeOnClick]="false"
     >
-      <span [innerHTML]="selectedElement?.['label']"></span>
+      <span [innerHTML]="selectedElement?.['boothNumber']"></span>
     </mgl-popup>
   </mgl-map>
 </div>

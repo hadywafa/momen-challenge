@@ -29,19 +29,17 @@ import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 })
 export class FloorPlanComponent implements OnInit, OnDestroy {
   private intervalSubscription: Subscription;
-  readonly style: StyleSpecification = {
+  style: StyleSpecification = {
     version: 8,
     name: "Raster tiles",
-    center: [0, 0],
-    zoom: 0,
     glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
     sources: {
       "raster-tiles": {
         type: "raster",
         tiles: ["https://tile.openstreetmap.org/{x}/{y}.png"],
         tileSize: 300,
-        minzoom: 0,
-        maxzoom: 15,
+        // minzoom: 0,
+        // maxzoom: 15,
       },
     },
     layers: [
@@ -110,6 +108,7 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
       x: this.mapBoundaryBox.bottomRight.x / 2,
       y: this.mapBoundaryBox.bottomRight.y / 2,
     };
+    this.style.center = [this.svgCenter.x, this.svgCenter.y];
     const rectElements = allElements.querySelectorAll("rect");
     const rectArray = Array.from(rectElements, (element) => element as SVGRectElement);
 
@@ -141,8 +140,8 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
       const [translateX, translateY] = this.extractTranslateValues(rectElement.getAttribute("transform")) || [0, 0];
       // Extract rotation value
       const rotate = this.extractRotateValue(rectElement.getAttribute("transform")) || 0;
-      const adjustedX = x + translateX / scale;
-      const adjustedY = y + translateY / scale;
+      const adjustedX = x; // + translateX / scale;
+      const adjustedY = y; //+ translateY / scale;
       const coordinates = this.calculateRotatedRectangleCoordinates(adjustedX, adjustedY, width, height, rotate);
       const asd: MapLibrePolygon = {
         type: "Feature",
@@ -152,6 +151,7 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
         },
         properties: {
           rotate: rotate,
+          boothNumber: "1",
           color: "red",
           label: "you can add any property here to display it ",
         },

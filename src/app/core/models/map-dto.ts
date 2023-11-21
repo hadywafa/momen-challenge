@@ -26,6 +26,7 @@ export class MapLibrePolygon {
   };
   properties!: {
     label: string;
+    boothNumber: string;
     rotate: number;
     color: string;
   };
