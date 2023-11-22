@@ -6,6 +6,7 @@
     [center]="[svgCenter.x, svgCenter.y]"
     [cursorStyle]="cursorStyle"
     (mapClick)="onMapClick()"
+    (mapLoad)="map = $event"
   >
     <ng-container *ngIf="load">
       <mgl-geojson-source id="base-Polygon">
@@ -54,7 +55,8 @@
             [geometry]="{
               type: 'Point',
               coordinates: txt.geometry.coordinates
-            }"
+            }
+            "
           ></mgl-feature>
         </ng-container>
       </mgl-geojson-source>
@@ -74,8 +76,7 @@
         type="fill"
         source="booth-Polygon"
         [paint]="{
-          'fill-color': 'blue',
-          'fill-opacity': 0.2
+          'fill-color': ['get', 'color'],
         }"
         (layerMouseEnter)="cursorStyle = 'pointer'"
         (layerMouseLeave)="cursorStyle = ''"
@@ -97,7 +98,7 @@
       [lngLat]="selectedLngLat"
       [closeOnClick]="false"
     >
-      <span [innerHTML]="selectedElement?.['boothNumber']"></span>
+      <span [innerHTML]="selectedElement?.properties['boothNumber']"></span>
     </mgl-popup>
   </mgl-map>
 </div>

@@ -1,11 +1,17 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewChildren } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewChildren } from "@angular/core";
 import { MapBoundaryBox, MapLibrePoint, MapLibrePolygon, SvgBoundaryBox, SvgCenter } from "src/app/core/models/map-dto";
-import { MapLayerMouseEvent, LngLat, LayerSpecification, StyleSpecification } from "maplibre-gl";
+import {
+  Map,
+  MapGeoJSONFeature,
+  MapLayerMouseEvent,
+  LngLat,
+  LayerSpecification,
+  StyleSpecification,
+} from "maplibre-gl";
 import {} from "@maplibre/ngx-maplibre-gl";
 import { GeoJsonProperties } from "geojson";
 import { Subscription, delay, interval } from "rxjs";
 import { FLOOR_PLAN_DATA_SVG } from "src/app/core/Data/svgData";
-import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 @Component({
   selector: "app-floor-plan",
   templateUrl: "./floor-plan.component.html",
@@ -13,6 +19,7 @@ import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 })
 export class FloorPlanComponent implements OnInit, OnDestroy {
   private intervalSubscription: Subscription;
+  map: Map;
   style: StyleSpecification = {
     version: 8,
     name: "Raster tiles",
@@ -45,7 +52,7 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
   readonly mapScale: number = 100;
   mapBoundaryBox!: MapBoundaryBox;
   svgCenter!: SvgCenter;
-  constructor(private sanitizer: DomSanitizer) {}
+  constructor(private changeDetectorRef: ChangeDetectorRef) {}
   load = false;
   readonly layerPaint = {
     "circle-radius": 10,
@@ -61,6 +68,7 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
   ngAfterViewInit() {
     this.dataContainer.nativeElement.innerHTML = FLOOR_PLAN_DATA_SVG;
     this.InitializeFloorPlan();
+    this.changeDetectorRef.detectChanges();
   }
   InitializeFloorPlan() {
     if (this.dataContainer) {
@@ -105,13 +113,26 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
     console.log(this.boothTextNumbers);
   }
   //-------------------------------------------------
-  selectedElement: GeoJsonProperties | null;
+  selectedElement?: MapGeoJSONFeature;
   selectedLngLat: LngLat;
   cursorStyle: string;
 
   onClick(evt: MapLayerMouseEvent) {
     this.selectedLngLat = evt.lngLat;
-    this.selectedElement = evt.features![0].properties;
+    this.selectedElement = evt.features![0] as MapGeoJSONFeature;
+    evt.features![0].properties;
+    if (this.selectedElement.properties["boothNumber"] === "701") {
+      //change property
+      this.selectedElement.properties["label"] = "label";
+      //change paint property
+      this.map.setPaintProperty(this.selectedElement.layer.id, "fill-color", [
+        "match",
+        ["get", "boothNumber"],
+        this.selectedElement.properties["boothNumber"],
+        "red",
+        this.selectedElement.properties["color"],
+      ]);
+    }
   }
   onMapClick() {
     this.selectedElement = null;
@@ -121,6 +142,7 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
     const resultNumber = resultStr.map((x) => parseFloat(x));
     return resultNumber;
   }
+
   //--------------------------------------------------------------------------------
   createBoothOutlines(svgWrapper: HTMLDivElement, scale: number = 1): MapLibrePolygon[] {
     const gElementsWithRect = svgWrapper.querySelectorAll("g rect");
@@ -149,7 +171,7 @@ export class FloorPlanComponent implements OnInit, OnDestroy {
         properties: {
           rotate: rotate,
           boothNumber: boothNumber,
-          color: "red",
+          color: "blue",
           label: "you can add any property here to display it ",
         },
       };
